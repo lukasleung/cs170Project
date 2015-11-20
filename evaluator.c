@@ -92,19 +92,19 @@ List cons(List listA, List listB) {
 
 
 List eval(List list){	
-    
+    /*
     printf("\nyolo-eval");
-	printf("\nlist     : ");
+	printf("\n          list: ");
 	printList(list);
-	printf("\ncar(list): ");
+	printf("\n     car(list): ");
 	printList(car(list));
-	printf("\ncdr(list): ");
+	printf("\n     cdr(list): ");
 	printList(cdr(list));
 	printf("\ncar(cdr(list)): ");
 	printList(car(cdr(list)));
 	printf("\n");
 	exit(0);
-    
+    */
 	if (car(list) != NULL) {
 		if (car(list)->data != NULL) {
 			char* data = car(list)->data;
@@ -120,7 +120,7 @@ List eval(List list){
 			} else if (!strcmp(data,"cdr")) {
 				return cdr(temp);
 			} else if (!strcmp(data,"quote")) {
-				return quote(temp);
+				return quote(car(cdr(list)));
 			} else if (!strcmp(data,"symbol?")) {
 				return symbol(temp);
 			} else if (!strcmp(data,"cons")) {

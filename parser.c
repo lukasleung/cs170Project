@@ -88,48 +88,54 @@ void printList(List list) {
 List S_Expression(int level) {
 	List local, temp;
 	if ( !strcmp(token,"(") ) {	// check if open
-		printf("yolo (\n");
 		local = init(NULL);
-		strcpy(token, getToken()); // token = getToken();
+		// printf("level: %d |symbol: %s\n",level, token);
+		strcpy(token, getToken());
 		local->first = S_Expression(level+1);
 		temp = local;
-		while ( strcmp(token,")") ) {
+		while (strcmp(token,")")) {
 			// not close => check if nested or if an element 
-			printf("should not be here!\n");
 			temp->rest = init(NULL);	// have the rest point ot a new List
 			temp = temp->rest;			// let's alter the next list
 			temp->first = S_Expression(level+1);
 		}
 		temp->rest = NULL;
+		
+		// printf("level: %d |symbol: %s\n",level, token);
+	    if (level != 0 ) { strcpy(token, getToken()); }
+	    
 	} else if (!strcmp(token,"#t")) {
 		local = init("#t");// true;
+		
+        // printf("level: %d |symbol: %s\n",level, token);
+	    if (level != 0 ) { strcpy(token, getToken()); }
+	    
 	} else if (!strcmp(token,"()") || !strcmp(token,"#f")) {
 		local = init("#f");// false;
+		
+	    // printf("level: %d |symbol: %s\n",level, token);
+    	if (level != 0 ) { strcpy(token, getToken()); }
+    	
 	} else if( !strcmp(token,"\'") ) { // check if token is a '
-		printf("yolo \'\n");
-		local = init(NULL);
-		local->first = init("quote");
+	
+		local = init(NULL); // initialize the local to be empty cons cell
+		local->first = init("quote");  // set its first to a cons cell storing quote
 		temp = local;
-		printList(temp);
-		strcpy(token, getToken());		
+		strcpy(token, getToken());	   
 		temp->rest = init(NULL);
 		temp = temp->rest;
-        temp->first = S_Expression(level+1);
-//		while (strcmp(token,")")) {
-//		    printf("\' portion: %s\n", token);
-//		    temp->rest = init(NULL);
-//		    temp = temp->rest;
-//		    temp->first = S_Expression(level+1);
-//	    }
-		printList(temp);
-		temp->rest = NULL;
+        temp->first = S_Expression(level);
+        
 	}else {
-		// not an open parens => print out content
-		printf("else portion: %s\n", token);
+		// content
 		local = init(token); 
+		
+	    // printf("level: %d |symbol: %s\n",level, token);
+	    if (level != 0 ) { strcpy(token, getToken()); }
 	}
 	// always get the next token unless this is the end of the inputted string
-	if (level != 0 ) { strcpy(token, getToken()); }
+//	printf("level: %d |symbol: %s\n",level, token);
+//	if (level != 0 ) { strcpy(token, getToken()); }
 	return local;
 }
 
