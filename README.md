@@ -1,6 +1,8 @@
-# cs170Project
-Creating a Scheme Interpreter in C
-[Assignment Description](http://cs.clarku.edu/~fgreen/courses/cs170/CS170HW/index.html)
+# Analysis of Programming Languages Project Fall 2015
+**Goal:** *Create a Scheme Interpreter in C*
+
+Click [here](http://cs.clarku.edu/~fgreen/courses/cs170/CS170HW/index.html)
+for the assignment description **OR** click on one of the parts below to see detailed explanations
 
 ## [Part 1:](http://cs.clarku.edu/~fgreen/courses/cs170/CS170HW/CS170Proj1.html) 
   Write a recursive descent parser for the subset of Scheme defined by the following EBNF grammar
