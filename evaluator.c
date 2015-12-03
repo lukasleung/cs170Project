@@ -12,55 +12,53 @@
 #include "parser.h"
 
 
-/****************************************************************
+/***********************************************************************************
  Function: List car(List list)
  --------------------
- Private function that returns a list containing only the first
- element of the given list.
- ****************************************************************/
+ Private function that returns a list containing only the first element of the given
+ list.
+ ***********************************************************************************/
 List car(List list) {	
 	return list->first;
 }
 
-/****************************************************************
+/***********************************************************************************
  Function: List cdr(List list)
  --------------------
- Private function that returns a list containing everything from
- the current list without the first element of that list.
- ****************************************************************/
+ Private function that returns a list containing everything from the current list 
+ without the first element of that list.
+ ***********************************************************************************/
 List cdr(List list) {
 	return list->rest;
 }
 
-/****************************************************************
- Function: List symbol(List list)
+/***********************************************************************************
+ Function: List quote(List list)
  --------------------
- Private function that returns either #t or () depending on 
- wheather list is a symbol aka has data stored in it.
- ****************************************************************/
+ Private function that returns the list given
+ ***********************************************************************************/
 List quote(List list) {
 	return list;
 }
 
 
-/****************************************************************
+/***********************************************************************************
  Function: List symbol(List list)
  --------------------
- Private function that returns either #t or () depending on 
- wheather list is a symbol aka has data stored in it.
- ****************************************************************/
+ Private function that returns either #t or () depending on wheather list is a symbol
+ aka has data stored in it.
+ ***********************************************************************************/
 List symbol(List list) {
 	if ( list->data != NULL ) { return init("#t"); }
 	else { return init("()"); }
 }
 
-/****************************************************************
+/***********************************************************************************
  Function: List cons(List listA, List listB)
  --------------------
- Private function that returns a conscell List by inserting the 
- first argument at the fron of the second so that listA appears as
- a singular element within List b.
- ****************************************************************/
+ Private function that returns a conscell List by inserting the first argument at the
+ fron of the second so that listA appears as a singular element within List b.
+ ***********************************************************************************/
 List cons(List listA, List listB) {
 	// need to create new pointers.
 	List a = init(NULL);
@@ -85,10 +83,45 @@ List cons(List listA, List listB) {
 	return a;
 }
 
+/***********************************************************************************
+ Function: List listCopy(List list)
+ --------------------
+ Private function that returns a conscell List that is the identical copy of the 
+ given list
+ ***********************************************************************************/
+List listCopy(List list) {
+    List copy = init(NULL);
+    if (list->data != NULL) {   // if there is data stored in this conscell
+        return init(list->data);
+    }
+    if (car(list) == NULL && cdr(list) == NULL) {
+        return NULL;
+    }
+    if (car(list) != NULL) {    // if there is a first, copy the first
+        car(copy) = listCopy(car(list));
+    } 
+    if (cdr(list) != NULL) {    // if there is a rest, copy the rest
+        cdr(copy) = listCopy(cdr(list));
+    }
+    return copy;
+}
 
-/****************************************************************
+/***********************************************************************************
+ Function: List append(List listA, List listB)
+ --------------------
+ Private function that returns a conscell List by appending listB to the end of listA
+ ***********************************************************************************/
+ List append(List listA, List listB) {
+    List a = init(NULL);
+    a->first = listCopy(listA);
+    
+    
+    return a;
+ }
+
+/***********************************************************************************
  Function: See header file for documentation.
- ****************************************************************/
+ ***********************************************************************************/
 
 
 List eval(List list){	
