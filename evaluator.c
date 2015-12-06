@@ -1,4 +1,3 @@
-
 /****************************************************************
   File: evaluator.c
  -------------
@@ -125,9 +124,10 @@ List listCopy(List list) {
  }
 
 /***********************************************************************************
- Function: List append(List listA, List listB)
+ Function: List nullFnc(List list)
  --------------------
- Private function that returns a conscell List by appending listB to the end of listA
+ Private function that returns either true or false depending on if the given list
+ is null
  ***********************************************************************************/
  List nullFnc(List list) {
     if ( list->data != NULL ) {
@@ -137,26 +137,77 @@ List listCopy(List list) {
     }
     return init("#f");
  }
+ 
+/***********************************************************************************
+ Function: int cellEqual(List listA, List listB)
+ --------------------
+ Private function that returns a 1 if the two cells have the same data and a 
+ ***********************************************************************************/
+ int cellEquals(List cellA, List cellB) {
+    return strcmp(cellA->data, cellB->data);
+ }
+
+/***********************************************************************************
+ Function: List checkStatus(List listA, List listB)
+ --------------------
+ Private function that returns true if the two initaial conscells are structurally 
+ equivalent and false otherwise
+ ***********************************************************************************/
+ List checkStatus(List listA, List listB) {
+    if ((listA->first != NULL && listB->first == NULL) ||
+        (listA->first == NULL && listB->first != NULL) ||
+        (listA->rest != NULL && listB->rest == NULL) ||
+        (listA->rest == NULL && listB->rest != NULL) ||
+        (listA->data != NULL && listB->data == NULL) ||
+        (listA->data == NULL && listB->data != NULL)) {
+        return init("#f");
+    }
+    return init("#t");
+ }
+
+
+/***********************************************************************************
+ Function: List equals(List listA, List listB)
+ --------------------
+ Private function that returns a conscell List by appending listB to the end of listA
+ ***********************************************************************************/
+ List equals(List listA, List listB) {
+    // check to see if the list have same initial structure
+    List result = checkStatus(listA, listB);
+    if ( !strcmp(result->data, "#f") ) {
+        return init("#f");
+    }
+    // if they both hold data, make sure it is the same
+    if (listA->data != NULL && listB->data != NULL) {
+        if (cellEquals(listA, listB)) {
+            return init("#f");
+        }
+    }
+    // if they both have firsts, ensure they are the same
+    if (listA->first != NULL && listB->first != NULL) {
+        result = equals(car(listA), car(listB)); // recursive call
+        // check what the result was, if it was false say it, otherwise
+        //  continue to check rest
+        if ( !strcmp(result->data, "#f") ) {
+            return init("#f");
+        }
+    }
+    // if they both have rests, ensure they are the same
+    if (listA->rest != NULL && listB->rest != NULL) {
+        result = equals(cdr(listA), cdr(listB)); // recursive call
+        // check what result was
+        if ( !strcmp(result->data, "#f") ) {
+            return init("#f");
+        }
+    }   
+    // have not returned false yet => these two lists are the same.
+    return init("#t");
+ }
 
 /***********************************************************************************
  Function: See header file for documentation.
  ***********************************************************************************/
-
-
-List eval(List list){	
-    /*
-    printf("\nyolo-eval");
-	printf("\n          list: ");
-	printList(list);
-	printf("\n     car(list): ");
-	printList(car(list));
-	printf("\n     cdr(list): ");
-	printList(cdr(list));
-	printf("\ncar(cdr(list)): ");
-	printList(car(cdr(list)));
-	printf("\n");
-	exit(0);
-    */
+List eval(List list){
 	if (car(list) != NULL) {
 		if (car(list)->data != NULL) {
 			char* data = car(list)->data;
@@ -181,12 +232,13 @@ List eval(List list){
 				return cons(temp, eval(car(cdr(cdr(list)))));
 			} else if (!strcmp(data,"append")) {
 			    return append(temp, eval(car(cdr(cdr(list)))));
+			} else if (!strcmp(data,"equal?")) {
+			    return equals(temp, eval(car(cdr(cdr(list)))));
 			}
 		} else {
 			printf("%s", list->data);
 			eval(car(list));
-			if (list->rest == NULL) { return list; } 
-			//else { return eval(list->rest); }
+			if (list->rest == NULL) { return list; }
 		}
 	}
 	return list;
