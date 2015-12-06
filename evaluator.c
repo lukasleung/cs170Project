@@ -41,7 +41,6 @@ List quote(List list) {
 	return list;
 }
 
-
 /***********************************************************************************
  Function: List symbol(List list)
  --------------------
@@ -126,6 +125,20 @@ List listCopy(List list) {
  }
 
 /***********************************************************************************
+ Function: List append(List listA, List listB)
+ --------------------
+ Private function that returns a conscell List by appending listB to the end of listA
+ ***********************************************************************************/
+ List nullFnc(List list) {
+    if ( list->data != NULL ) {
+        if (!strcmp(list->data,"#f")) {
+            return init("#t");
+        }
+    }
+    return init("#f");
+ }
+
+/***********************************************************************************
  Function: See header file for documentation.
  ***********************************************************************************/
 
@@ -162,6 +175,8 @@ List eval(List list){
 				return quote(car(cdr(list)));
 			} else if (!strcmp(data,"symbol?")) {
 				return symbol(temp);
+			} else if (!strcmp(data,"null?")) {
+			    return nullFnc(temp);
 			} else if (!strcmp(data,"cons")) {
 				return cons(temp, eval(car(cdr(cdr(list)))));
 			} else if (!strcmp(data,"append")) {
