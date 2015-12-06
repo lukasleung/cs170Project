@@ -90,18 +90,17 @@ List cons(List listA, List listB) {
  given list
  ***********************************************************************************/
 List listCopy(List list) {
-    List copy = init(NULL);
+    if (list == NULL) { return NULL; }
     if (list->data != NULL) {   // if there is data stored in this conscell
         return init(list->data);
     }
-    if (car(list) == NULL && cdr(list) == NULL) {
-        return NULL;
-    }
+    // no data, fill in first and rest 
+    List copy = init(NULL);
     if (car(list) != NULL) {    // if there is a first, copy the first
-        car(copy) = listCopy(car(list));
+        copy->first = listCopy(car(list));
     } 
     if (cdr(list) != NULL) {    // if there is a rest, copy the rest
-        cdr(copy) = listCopy(cdr(list));
+        copy->rest = listCopy(cdr(list));
     }
     return copy;
 }
@@ -113,9 +112,16 @@ List listCopy(List list) {
  ***********************************************************************************/
  List append(List listA, List listB) {
     List a = init(NULL);
-    a->first = listCopy(listA);
-    
-    
+    a = listCopy(listA);
+    if (cdr(a) != NULL) { // if the list has a rest, get to the last rest
+        List temp = cdr(a);
+        while (cdr(temp) != NULL) {
+            temp = cdr(temp);
+        }
+        temp->rest = listCopy(listB);  // set the last rest to point to the copy of b
+    } else {
+        a->rest = listCopy(listB);  // 
+    }
     return a;
  }
 
@@ -158,6 +164,8 @@ List eval(List list){
 				return symbol(temp);
 			} else if (!strcmp(data,"cons")) {
 				return cons(temp, eval(car(cdr(cdr(list)))));
+			} else if (!strcmp(data,"append")) {
+			    return append(temp, eval(car(cdr(cdr(list)))));
 			}
 		} else {
 			printf("%s", list->data);
