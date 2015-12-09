@@ -108,7 +108,7 @@ List listCopy(List list) {
  --------------------
  Private function that returns a conscell List by appending listB to the end of listA
  ***********************************************************************************/
- List append(List listA, List listB) {
+List append(List listA, List listB) {
     List a = init(NULL);
     a = listCopy(listA);
     if (cdr(a) != NULL) { // if the list has a rest, get to the last rest
@@ -129,7 +129,7 @@ List listCopy(List list) {
  Private function that returns either true or false depending on if the given list
  is null
  ***********************************************************************************/
- List nullFnc(List list) {
+List nullFnc(List list) {
     if ( list->data != NULL ) {
         if (!strcmp(list->data,"#f")) {
             return init("#t");
@@ -143,7 +143,7 @@ List listCopy(List list) {
  --------------------
  Private function that returns a 1 if the two cells have the same data and a 
  ***********************************************************************************/
- int cellEquals(List cellA, List cellB) {
+int cellEquals(List cellA, List cellB) {
     return strcmp(cellA->data, cellB->data);
  }
 
@@ -153,7 +153,7 @@ List listCopy(List list) {
  Private function that returns true if the two initaial conscells are structurally 
  equivalent and false otherwise
  ***********************************************************************************/
- List checkStatus(List listA, List listB) {
+List checkStatus(List listA, List listB) {
     if ((car(listA) != NULL && car(listB) == NULL) ||
         (car(listA) == NULL && car(listB) != NULL) ||
         (cdr(listA) != NULL && cdr(listB) == NULL) ||
@@ -171,7 +171,7 @@ List listCopy(List list) {
  --------------------
  Private function that returns a conscell List by appending listB to the end of listA
  ***********************************************************************************/
- List equals(List listA, List listB) {
+List equals(List listA, List listB) {
     // check to see if the list have same initial structure
     List result = checkStatus(listA, listB);
     if ( !strcmp(result->data, "#f") ) {
@@ -207,7 +207,7 @@ List listCopy(List list) {
  
 /***********************************************************************************
  Function: List assocString(char* symbol, List list)
- --------------------   (assoc 'a '((c d) (d e) (f j) (g a)))
+ --------------------
  Private function that returns the pair associated with the symbol, and #f if the 
  symbol is not the first element of any pair
  ***********************************************************************************/
@@ -241,8 +241,36 @@ List assocString(char* symbol, List list) {
  Private function that returns the pair associated with the symbol, and #f if the 
  symbol is not the first element of any pair
  ***********************************************************************************/
- List assoc(List symbol, List list) {
+List assoc(List symbol, List list) {
     return assocString(symbol->data, list);
+ }
+ 
+/***********************************************************************************
+ Function: List cond(List list)
+ --------------------
+ The multiple-alternative conditional
+ (cond ((equal? '(a b) '(a b)) 'equals) (#f 'greater) (#t 'less))
+ ***********************************************************************************/
+List cond(List list) {
+    if (list != NULL && car(list) != NULL) {  
+        // sturcture is a pair, first part is the boolean, 
+        //  second is the part to be executed     
+        List structure = car(list); 
+        if (car(structure) != NULL) {
+            List boolean = eval(car(structure));    // get boolean portion
+            // check to see if boolean portion is true
+            if ( boolean->data != NULL && (!strcmp(boolean->data, "#t") || !strcmp(boolean->data, "else")) && cdr(structure) != NULL) {
+                List rest = cdr(structure); // the executable portion
+                List evalStatement = car(rest);
+                return eval(evalStatement);
+            }
+        }  
+        // recursive portion to be called if there is more to the cond statement
+        if (cdr(list) != NULL) {
+            return cond(cdr(list)); 
+        }
+    }
+    return init("#f");
  }
 
 /***********************************************************************************
@@ -277,6 +305,9 @@ List eval(List list){
                 return equals(temp, eval(car(cdr(cdr(list)))) );
             } else if (!strcmp(data,"assoc")) {
                 return assoc(temp, eval(car(cdr(cdr(list)))) );         
+			} else if (!strcmp(data,"cond")) {
+			    List pass = eval(cdr(list));
+			    return cond(pass);
 			}
 		} else {
 			// printf("%s", list->data);
