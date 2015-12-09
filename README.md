@@ -13,20 +13,20 @@ for the assignment description **OR** click on one of the parts below to see det
   1. Modify your S_Expression() function so that it returns the underlying "cons-cell" structure of the list that it parses.
 
   2. Add an eval() function that can evaluate a list, given its internal representation. For now, just implement the the following basic functions: 
-    - quote
-    - car
-    - cdr
-    - cons
-    - symbol?.
+    - **quote**
+    - **car**
+    - **cdr**
+    - **cons**
+    - **symbol?**
 
 ## [Part 3:](http://cs.clarku.edu/~fgreen/courses/cs170/CS170HW/CS170Proj3.html)
 This assignment sets up the necessary preliminaries for function definition. Done in two steps.
   1. Add the following built-in Scheme functions to your interpreter:
-    - append
-    - null?
-    - equal?
-    - assoc
-    - cond
+    - **append**: takes two arguments and returns a list that appends the second list to the end of the first.
+    - **null?**
+    - **equal?**: returns #t if its arguments evaluate to the same value and #f otherwise
+    - **assoc**: returns the pair associated with the symbol
+    - **cond**: the multiple-alternative conditional
   
   2. Binding of Values to Symbols done simply by defining symbols to have values, which is much the same as defining constant functions. This is analogous to assigning values to variables in imperative languages.
     - When a definition is made using define, we will ADD to the referencing environment.

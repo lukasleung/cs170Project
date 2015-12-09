@@ -1,7 +1,7 @@
 /****************************************************************
   File: evaluator.c
  -------------
-  This file implements the interface given in parser.h.
+  This file implements the interface given in evaluator.h
 ****************************************************************/
 
 #include <stdlib.h>
@@ -64,20 +64,20 @@ List cons(List listA, List listB) {
 	a->first = listA;
 	b->first = listB;
 	// check to see if the first argument is false
-	if ( a->first->data != NULL && !strcmp(a->first->data,"#f") ) { 
+	if (car(a)->data != NULL && !strcmp(car(a)->data,"#f")) { 
 		// if both are false, return an empty List
-		if ( b->first->data != NULL && !strcmp(b->first->data,"#f") ) {
+		if (car(b)->data != NULL && !strcmp(car(b)->data,"#f")) {
 			return init(NULL);
 		}
 		// just a is false, return b
 		return b->first;
 	}
 	// check to see if the second argument is false, if so return a
-	if ( b->first->data != NULL && !strcmp(b->first->data,"#f") ) { 
+	if (car(b)->data != NULL && !strcmp(car(b)->data,"#f") ) { 
 		return a;
 	}
 	// cons the two valid entries
-	a->rest = b->first;
+	a->rest = car(b);
 	return a;
 }
 
@@ -154,10 +154,10 @@ List listCopy(List list) {
  equivalent and false otherwise
  ***********************************************************************************/
  List checkStatus(List listA, List listB) {
-    if ((listA->first != NULL && listB->first == NULL) ||
-        (listA->first == NULL && listB->first != NULL) ||
-        (listA->rest != NULL && listB->rest == NULL) ||
-        (listA->rest == NULL && listB->rest != NULL) ||
+    if ((car(listA) != NULL && car(listB) == NULL) ||
+        (car(listA) == NULL && car(listB) != NULL) ||
+        (cdr(listA) != NULL && cdr(listB) == NULL) ||
+        (cdr(listA) == NULL && cdr(listB) != NULL) ||
         (listA->data != NULL && listB->data == NULL) ||
         (listA->data == NULL && listB->data != NULL)) {
         return init("#f");
@@ -184,7 +184,7 @@ List listCopy(List list) {
         }
     }
     // if they both have firsts, ensure they are the same
-    if (listA->first != NULL && listB->first != NULL) {
+    if (car(listA) != NULL && car(listB) != NULL) {
         result = equals(car(listA), car(listB)); // recursive call
         // check what the result was, if it was false say it, otherwise
         //  continue to check rest
@@ -193,7 +193,7 @@ List listCopy(List list) {
         }
     }
     // if they both have rests, ensure they are the same
-    if (listA->rest != NULL && listB->rest != NULL) {
+    if (cdr(listA) != NULL && cdr(listB) != NULL) {
         result = equals(cdr(listA), cdr(listB)); // recursive call
         // check what result was
         if ( !strcmp(result->data, "#f") ) {
@@ -202,6 +202,47 @@ List listCopy(List list) {
     }   
     // have not returned false yet => these two lists are the same.
     return init("#t");
+ }
+ 
+ 
+/***********************************************************************************
+ Function: List assocString(char* symbol, List list)
+ --------------------   (assoc 'a '((c d) (d e) (f j) (g a)))
+ Private function that returns the pair associated with the symbol, and #f if the 
+ symbol is not the first element of any pair
+ ***********************************************************************************/
+List assocString(char* symbol, List list) {
+    // go through the list checking each pair
+    while (list != NULL) {
+        // get pair
+        if ( car(list) != NULL ) {
+            List pair = car(list);            
+            // check the first element of pair
+             if (car(pair) != NULL) {              
+                List element = car(pair);
+                // check whether the element is the same as given symbol
+                if (element->data != NULL) {
+                    if (!strcmp(symbol,element->data)) {
+                        return pair;
+                    }
+                }               
+            }
+        }
+        // get the next tuple
+        list = cdr(list);
+    }
+    
+    return init("#f");
+ }
+ 
+/***********************************************************************************
+ Function: List assoc(List symbol, List list)
+ --------------------
+ Private function that returns the pair associated with the symbol, and #f if the 
+ symbol is not the first element of any pair
+ ***********************************************************************************/
+ List assoc(List symbol, List list) {
+    return assocString(symbol->data, list);
  }
 
 /***********************************************************************************
@@ -229,14 +270,16 @@ List eval(List list){
 			} else if (!strcmp(data,"null?")) {
 			    return nullFnc(temp);
 			} else if (!strcmp(data,"cons")) {
-				return cons(temp, eval(car(cdr(cdr(list)))));
-			} else if (!strcmp(data,"append")) {
-			    return append(temp, eval(car(cdr(cdr(list)))));
-			} else if (!strcmp(data,"equal?")) {
-			    return equals(temp, eval(car(cdr(cdr(list)))));
+                return cons(temp, eval(car(cdr(cdr(list)))) );
+            } else if (!strcmp(data,"append")) {
+                return append(temp, eval(car(cdr(cdr(list)))) );
+            } else if (!strcmp(data,"equal?")) {
+                return equals(temp, eval(car(cdr(cdr(list)))) );
+            } else if (!strcmp(data,"assoc")) {
+                return assoc(temp, eval(car(cdr(cdr(list)))) );         
 			}
 		} else {
-			printf("%s", list->data);
+			// printf("%s", list->data);
 			eval(car(list));
 			if (list->rest == NULL) { return list; }
 		}
