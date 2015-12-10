@@ -11,6 +11,17 @@
 #include "parser.h"
 
 
+List glenv; // the global environment stored as a list
+/************************************************************************************
+ Function: void printEnvironment()
+ --------------------
+ Private function that prints out the current global environement
+ ***********************************************************************************/
+void printEnvironment() {
+    printf("printing out environment");
+}
+
+
 /***********************************************************************************
  Function: List car(List list)
  --------------------
@@ -276,7 +287,7 @@ List cond(List list) {
 /***********************************************************************************
  Function: See header file for documentation.
  ***********************************************************************************/
-List eval(List list){
+List eval(List list) {
 	if (car(list) != NULL) {
 		if (car(list)->data != NULL) {
 			char* data = car(list)->data;
@@ -284,7 +295,8 @@ List eval(List list){
 				printf("Have a nice day!\n");
 				exit(0);
 			} else if (!strcmp(data,"environment")) {
-			    printf("print out my current environment\n");
+			    printEnvironment();
+			    return NULL;
 			}
 			List temp = eval(car(cdr(list)));
 			if (!strcmp(data,"car")) {
@@ -308,6 +320,8 @@ List eval(List list){
 			} else if (!strcmp(data,"cond")) {
 			    List pass = eval(cdr(list));
 			    return cond(pass);
+			} else if (!strcmp(data,"define")) {
+			    printf("add to global environment\n");
 			}
 		} else {
 			// printf("%s", list->data);
@@ -319,3 +333,7 @@ List eval(List list){
 }
 
 
+List evals(List list, List globalEnvironment) {
+    glenv = globalEnvironment;
+    return eval(list);
+}

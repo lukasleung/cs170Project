@@ -7,29 +7,18 @@
 
 main()
 {
-	/*
-	true = malloc(sizeof(struct conscell));
-	false = malloc(sizeof(struct conscell));
-	true->first = NULL;
-	true->rest = NULL;
-	false->first = NULL;
-	false->rest = NULL;
-	true->data = "#t";
-	false->data = "#f";
-	*/
 	char token[20];
-
+    List globalEnvironment = init(NULL);
 	startTokens(20);
 
-	printf("A prototype evaluator for Scheme.\n");
+	printf("\nA prototype evaluator for Scheme.\n");
 	printf("Type Scheme expressions using quote,\n");
 	printf("car, cdr, cons and symbol?.\n");
 	printf("The function call (exit) quits.\n\n");
-
+    printf("scheme> ");
 	while(1) {
-		printf("scheme> ");
-		printList(eval(parse()));
-		printf("\n\n");
+		printList(evals(parse(), globalEnvironment));
+		printf("\n\nscheme> ");
 	}
 	
 }

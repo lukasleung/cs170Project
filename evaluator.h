@@ -12,11 +12,12 @@
 
 
 /****************************************************************
- Function: eval(List list)
+ Function: evals(List list)
  --------------------
  This function evaluates a given list as Scheme would have it
  */
 List eval(List list);
 
+List evals(List list, List globalEnvironment);
 
 #endif
