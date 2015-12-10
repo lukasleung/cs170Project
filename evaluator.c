@@ -12,14 +12,7 @@
 
 
 List glenv; // the global environment stored as a list
-/************************************************************************************
- Function: void printEnvironment()
- --------------------
- Private function that prints out the current global environement
- ***********************************************************************************/
-void printEnvironment() {
-    printf("printing out environment");
-}
+int numGE;
 
 
 /***********************************************************************************
@@ -284,6 +277,44 @@ List cond(List list) {
     return init("#f");
  }
 
+
+
+/************************************************************************************
+ Function: void printEnvironment()
+ --------------------
+ Private function that prints out the current global environement
+ ***********************************************************************************/
+void printEnvironment() {
+    printf("Number elements in global environment: %d\n", numGE);
+    printList(glenv);
+}
+
+/************************************************************************************
+ Function: void addToEnvironment()
+ --------------------
+ Private function that prints out the current global environement
+ ***********************************************************************************/
+void addToEnvironment(List term, List definition) {      
+    List temp = init(NULL);
+    temp->first = definition;
+    List def = init(NULL);
+    def->first = term;
+    def->rest = temp;
+    
+    List head = glenv;
+    List lastHead;
+    while (head != NULL) {
+        if (cdr(head) == NULL) {
+            head->first = def;
+            lastHead = head;
+        }
+        head = cdr(head);
+    }
+    lastHead->rest = init(NULL);    
+    numGE++;
+}
+
+
 /***********************************************************************************
  Function: See header file for documentation.
  ***********************************************************************************/
@@ -321,7 +352,9 @@ List eval(List list) {
 			    List pass = eval(cdr(list));
 			    return cond(pass);
 			} else if (!strcmp(data,"define")) {
-			    printf("add to global environment\n");
+			    List definition = eval(car(cdr(cdr(list))));
+			    addToEnvironment(temp, definition);
+			    return glenv;
 			}
 		} else {
 			// printf("%s", list->data);
