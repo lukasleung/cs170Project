@@ -286,7 +286,21 @@ List cond(List list) {
  ***********************************************************************************/
 void printEnvironment() {
     printf("Number elements in global environment: %d\n", numGE);
-    printList(glenv);
+    if (numGE == 0) {
+        printList(glenv);
+    } else {
+        int i = 1;
+        printf("%d. ", i);
+        printList(car(glenv));  // print the first one
+        // if there are more, print them out
+        List temp = cdr(glenv);
+        while (temp != NULL) {
+            i++;
+            printf("\n%d. ", i);
+            printList(car(temp));
+            temp = cdr(temp);
+        }
+    }
 }
 
 /************************************************************************************
@@ -295,22 +309,30 @@ void printEnvironment() {
  Private function that prints out the current global environement
  ***********************************************************************************/
 void addToEnvironment(List term, List definition) {      
+    // need to repackage the definition
     List temp = init(NULL);
     temp->first = definition;
+    // put the term and definition into a pair
     List def = init(NULL);
     def->first = term;
     def->rest = temp;
     
-    List head = glenv;
-    List lastHead;
-    while (head != NULL) {
-        if (cdr(head) == NULL) {
-            head->first = def;
-            lastHead = head;
+    // tell if this is the first element in the global environment
+    if (numGE == 0) {
+        glenv->first = def;
+        printf("First entry\n");
+    } else {
+        List head = glenv;
+        List lastHead;
+        while (head != NULL) {
+            if (cdr(head) == NULL) {
+                lastHead = head;
+            }
+            head = cdr(head);
         }
-        head = cdr(head);
-    }
-    lastHead->rest = init(NULL);    
+        lastHead->rest = init(NULL);  
+        lastHead->rest->first = def;
+    }  
     numGE++;
 }
 
@@ -355,6 +377,9 @@ List eval(List list) {
 			    List definition = eval(car(cdr(cdr(list))));
 			    addToEnvironment(temp, definition);
 			    return glenv;
+			} else {
+			    printf("check to see if environment\n");
+			    //List temp = assoc();
 			}
 		} else {
 			// printf("%s", list->data);
