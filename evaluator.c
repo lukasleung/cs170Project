@@ -41,6 +41,9 @@ List cdr(List list) {
  Private function that returns the list given
  ***********************************************************************************/
 List quote(List list) {
+    if (list->data != NULL && !strcmp(list->data, "()")) {
+        return NULL;
+    }
 	return list;
 }
 
@@ -113,6 +116,17 @@ List listCopy(List list) {
  Private function that returns a conscell List by appending listB to the end of listA
  ***********************************************************************************/
 List append(List listA, List listB) {
+    // check to see if either list is NULL
+    if (listB == NULL) { 
+        if (listA == NULL) {
+            return init("()");
+        }
+        return listCopy(listA); 
+    }
+    if (listA == NULL) {
+        return listCopy(listB);
+    }
+    // both are valid lists.
     List a = init(NULL);
     a = listCopy(listA);
     if (cdr(a) != NULL) { // if the list has a rest, get to the last rest
@@ -134,8 +148,11 @@ List append(List listA, List listB) {
  is null
  ***********************************************************************************/
 List nullFnc(List list) {
+    if (list == NULL) {
+        return init("#t");
+    }
     if ( list->data != NULL ) {
-        if (!strcmp(list->data,"#f")) {
+        if (!strcmp(list->data,"#f") || !strcmp(list->data,"()")) {
             return init("#t");
         }
     }
@@ -320,6 +337,12 @@ void addToEnvironment(List term, List definition) {
     if (numGE == 0) {
         glenv->first = def;
     } else {
+        /*
+        List newDef = init(NULL);
+        newDef->first = def;
+        newDef->rest = glenv;
+        glenv = newDef;
+        /*/
         List head = glenv;
         List lastHead;
         while (head != NULL) {
@@ -330,7 +353,9 @@ void addToEnvironment(List term, List definition) {
         }
         lastHead->rest = init(NULL);  
         lastHead->rest->first = def;
+        
     }  
+    
     numGE++;
 }
 
@@ -349,35 +374,38 @@ List eval(List list) {
 			    printEnvironment();
 			    return NULL;
 			}
-			List temp = eval(car(cdr(list)));
-			if (!strcmp(data,"car")) {
-				return car(temp);
-			} else if (!strcmp(data,"cdr")) {
-				return cdr(temp);
-			} else if (!strcmp(data,"quote")) {
-				return quote(car(cdr(list)));
-			} else if (!strcmp(data,"symbol?")) {
-				return symbol(temp);
-			} else if (!strcmp(data,"null?")) {
-			    return nullFnc(temp);
-			} else if (!strcmp(data,"cons")) {
-                return cons(temp, eval(car(cdr(cdr(list)))) );
-            } else if (!strcmp(data,"append")) {
-                return append(temp, eval(car(cdr(cdr(list)))) );
-            } else if (!strcmp(data,"equal?")) {
-                return equals(temp, eval(car(cdr(cdr(list)))) );
-            } else if (!strcmp(data,"assoc")) {
-                return assoc(temp, eval(car(cdr(cdr(list)))) );         
-			} else if (!strcmp(data,"cond")) {
-			    List pass = eval(cdr(list));
-			    return cond(pass);
-			} else if (!strcmp(data,"define")) {
-			    List definition = eval(car(cdr(cdr(list))));
-			    addToEnvironment(temp, definition);
-			    return glenv;
+			
+			if (cdr(list) != NULL && car(cdr(list)) != NULL) {
+			    List temp = eval(car(cdr(list)));
+			    if (!strcmp(data,"car")) {
+				    return car(temp);
+			    } else if (!strcmp(data,"cdr")) {
+				    return cdr(temp);
+			    } else if (!strcmp(data,"quote")) {
+				    return quote(car(cdr(list)));
+			    } else if (!strcmp(data,"symbol?")) {
+				    return symbol(temp);
+			    } else if (!strcmp(data,"null?")) {
+			        return nullFnc(temp);
+			    } else if (!strcmp(data,"cons")) {
+                    return cons(temp, eval(car(cdr(cdr(list)))) );
+                } else if (!strcmp(data,"append")) {
+                    return append(temp, eval(car(cdr(cdr(list)))) );
+                } else if (!strcmp(data,"equal?")) {
+                    return equals(temp, eval(car(cdr(cdr(list)))) );
+                } else if (!strcmp(data,"assoc")) {
+                    return assoc(temp, eval(car(cdr(cdr(list)))) );         
+			    } else if (!strcmp(data,"cond")) {
+			        List pass = eval(cdr(list));
+			        return cond(pass);
+			    } else if (!strcmp(data,"define")) {
+			        List definition = eval(car(cdr(cdr(list))));
+			        addToEnvironment(temp, definition);
+			        return glenv;
+			    }
 			}
 		} else {
-			// printf("%s", list->data);
+			// printf("here! %s\n", list->data);
 			eval(car(list));
 			if (list->rest == NULL) { return list; }
 		}

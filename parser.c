@@ -110,12 +110,17 @@ List S_Expression(int level) {
         // printf("level: %d |symbol: %s\n",level, token);
 	    if (level != 0 ) { strcpy(token, getToken()); }
 	    
-	} else if (!strcmp(token,"()") || !strcmp(token,"#f")) {
+	} else if (!strcmp(token,"#f")) {
 		local = init("#f");// false;
 		
 	    // printf("level: %d |symbol: %s\n",level, token);
     	if (level != 0 ) { strcpy(token, getToken()); }
     	
+	} else if (!strcmp(token,"()")){
+	    local = init("()");
+	    // printf("level: %d |symbol: %s\n",level, token);
+    	if (level != 0 ) { strcpy(token, getToken()); }
+	    
 	} else if( !strcmp(token,"\'") ) { // check if token is a '
 	
 		local = init(NULL); // initialize the local to be empty cons cell
