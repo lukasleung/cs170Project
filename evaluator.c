@@ -253,7 +253,6 @@ List assoc(List symbol, List list) {
  Function: List cond(List list)
  --------------------
  The multiple-alternative conditional
- (cond ((equal? '(a b) '(a b)) 'equals) (#f 'greater) (#t 'less))
  ***********************************************************************************/
 List cond(List list) {
     if (list != NULL && car(list) != NULL) {  
@@ -320,7 +319,6 @@ void addToEnvironment(List term, List definition) {
     // tell if this is the first element in the global environment
     if (numGE == 0) {
         glenv->first = def;
-        printf("First entry\n");
     } else {
         List head = glenv;
         List lastHead;
@@ -377,16 +375,18 @@ List eval(List list) {
 			    List definition = eval(car(cdr(cdr(list))));
 			    addToEnvironment(temp, definition);
 			    return glenv;
-			} else {
-			    printf("check to see if environment\n");
-			    //List temp = assoc();
 			}
 		} else {
 			// printf("%s", list->data);
 			eval(car(list));
 			if (list->rest == NULL) { return list; }
 		}
-	}
+	} else {
+	    List re = assoc(list, glenv);
+	    if (re->data == NULL) {
+	        return car(cdr(re));
+        }
+    }
 	return list;
 }
 
