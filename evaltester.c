@@ -9,6 +9,7 @@ main()
 {
 	char token[20];
     List globalEnvironment = init(NULL);
+    List functionEnvironment = init(NULL);
 	startTokens(20);
 
 	printf("\nA prototype evaluator for Scheme.\n");
@@ -17,7 +18,7 @@ main()
 	printf("The function call (exit) quits.\n\n");
     printf("scheme> ");
 	while(1) {
-		printList(evals(parse(), globalEnvironment));
+		printList(evals(parse(), globalEnvironment, functionEnvironment));
 		printf("\n\nscheme> ");
 	}
 	

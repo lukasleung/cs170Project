@@ -14,6 +14,9 @@
 List glenv; // the global environment stored as a list
 int numGE;
 
+List fncenv; // the functional environment stored as a list
+int numFE;
+
 
 /***********************************************************************************
  Function: List car(List list)
@@ -298,25 +301,47 @@ List cond(List list) {
 /************************************************************************************
  Function: void printEnvironment()
  --------------------
- Private function that prints out the current global environement
+ Private function that prints out 
+    - the current global environement : if function = 0
+    - the current function environment: if function = 1
  ***********************************************************************************/
-void printEnvironment() {
-    printf("Number elements in global environment: %d\n", numGE);
-    if (numGE == 0) {
-        printList(glenv);
-    } else {
-        int i = 1;
-        printf("%d. ", i);
-        printList(car(glenv));  // print the first one
-        // if there are more, print them out
-        List temp = cdr(glenv);
-        while (temp != NULL) {
-            i++;
-            printf("\n%d. ", i);
-            printList(car(temp));
-            temp = cdr(temp);
+void printEnvironment(int function) {
+    if (function) {
+        printf("Number elements in the function environment: %d\n", numFE);
+        if (numGE == 0) {
+            printList(fncenv);
+        } else {
+            int i = 1;
+            printf("%d. ", i);
+            printList(car(fncenv));  // print the first one
+            // if there are more, print them out
+            List temp = cdr(fncenv);
+            while (temp != NULL) {
+                i++;
+                printf("\n%d. ", i);
+                printList(car(temp));
+                temp = cdr(temp);
+            }
+        }
+    } else if (!function) {
+        printf("Number elements in the global environment: %d\n", numGE);
+        if (numGE == 0) {
+            printList(glenv);
+        } else {
+            int i = 1;
+            printf("%d. ", i);
+            printList(car(glenv));  // print the first one
+            // if there are more, print them out
+            List temp = cdr(glenv);
+            while (temp != NULL) {
+                i++;
+                printf("\n%d. ", i);
+                printList(car(temp));
+                temp = cdr(temp);
+            }
         }
     }
+    
 }
 
 /************************************************************************************
@@ -371,7 +396,10 @@ List eval(List list) {
 				printf("Have a nice day!\n");
 				exit(0);
 			} else if (!strcmp(data,"environment")) {
-			    printEnvironment();
+			    printEnvironment(0);
+			    return NULL;
+			} else if (!strcmp(data,"functions")) {
+			    printEnvironment(1);
 			    return NULL;
 			}
 			
@@ -419,7 +447,8 @@ List eval(List list) {
 }
 
 
-List evals(List list, List globalEnvironment) {
+List evals(List list, List globalEnvironment, List functionEnvironment) {
     glenv = globalEnvironment;
+    fncenv = functionEnvironment;
     return eval(list);
 }

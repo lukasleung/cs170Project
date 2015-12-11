@@ -18,6 +18,6 @@
  */
 List eval(List list);
 
-List evals(List list, List globalEnvironment);
+List evals(List list, List globalEnvironment, List functionEnvironment);
 
 #endif
