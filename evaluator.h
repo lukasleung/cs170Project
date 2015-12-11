@@ -30,4 +30,6 @@ List eval(List list);
  */
 List evals(List list, List globalEnvironment, List functionEnvironment);
 
+List evalf(List list, List originalEnvironment, List augmentedEnvironment, List functionEnvironment, int numOl, int numAl, int numF);
+
 #endif
