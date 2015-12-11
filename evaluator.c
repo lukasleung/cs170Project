@@ -424,6 +424,12 @@ List eval(List list) {
 			    printEnvironment(1);
 			    return NULL;
 			}
+			// look to see if in function environment
+			List found = assocString(data, fncenv);
+            if (found->data == NULL) {
+                printf("found in the function environment\n");
+                
+            }
 			
 			if (cdr(list) != NULL && car(cdr(list)) != NULL) {
 			    List temp = eval(car(cdr(list)));
