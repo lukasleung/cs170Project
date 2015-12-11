@@ -406,7 +406,38 @@ void addToFncs(List name, List function) {
     numFE++;
 }
 
-List evalFunction(char* name, List function, List params) {
+
+
+
+List augmentedDefs(List term, List definition, List local, int numEl) {      
+    // need to repackage the definition
+    List temp = init(NULL);
+    temp->first = definition;
+    // put the term and definition into a pair
+    List def = init(NULL);
+    def->first = term;
+    def->rest = temp;
+    
+    // tell if this is the first element in the global environment
+    if (numEl == 0) {
+        local->first = def;
+    } else {
+        List head = local;
+        List lastHead;
+        while (head != NULL) {
+            if (cdr(head) == NULL) {
+                lastHead = head;
+            }
+            head = cdr(head);
+        }
+        lastHead->rest = init(NULL);  
+        lastHead->rest->first = def;
+    }     
+    return local;
+}
+
+
+List evalFunction(char* name, List function, List params, List localE) {
     
     List fncParams = cdr(assocString(name, cdr(car(cdr(function)))));
     List evaluated = cdr(cdr(car(cdr(function))));
@@ -420,16 +451,25 @@ List evalFunction(char* name, List function, List params) {
     printList(params);
     printf("\n");
     List temp = params;
+    List localEnv = listCopy(glenv);
+    printf("local environment: ");
+    printList(localEnv);
+    printf("\n");
+    int i = 0;
     while (fncParams != NULL) {
         printList(car(fncParams));
         printf(": ");
         printList(eval(car(temp)));
         printf("\n");
-        addToDefs(car(fncParams), eval(car(temp)));
+        localEnv = augmentedDefs(car(fncParams), eval(car(temp)), localEnv, i);
         temp = cdr(temp);
         fncParams = cdr(fncParams);
+        i++;
     }
-    return eval(evaluated);
+    printf("Augmented local environment: ");
+    printList(localEnv);
+    printf("\n");
+    return evals(evaluated, localEnv, fncenv);
 }
 
 // (define (member E L) (cond ((null? L) #f) ((equal? E (car L)) L) (else (member E (cdr L)))))
@@ -456,7 +496,7 @@ List eval(List list) {
             if (found->data == NULL) {
                 // printf("found in the function environment\n");
                 List params = eval(cdr(list));
-                return evalFunction(data, found, params);
+                return evalFunction(data, found, params, init(NULL));
             }
 			
 			if (cdr(list) != NULL && car(cdr(list)) != NULL) {
