@@ -344,6 +344,7 @@ void printEnvironment(int function) {
     
 }
 
+
 /************************************************************************************
  Function: void addToDefs()
  --------------------
@@ -403,10 +404,36 @@ void addToFncs(List name, List function) {
         lastHead->rest->first = def;
     }      
     numFE++;
-    
 }
 
+List evalFunction(char* name, List function, List params) {
+    
+    List fncParams = cdr(assocString(name, cdr(car(cdr(function)))));
+    List evaluated = cdr(cdr(car(cdr(function))));
+    printf("function: ");
+    printList(function);
+    printf("\nfunction params: ");
+    printList(fncParams);
+    printf("\nevaluate: ");
+    printList(evaluated);
+    printf("\nparams: ");
+    printList(params);
+    printf("\n");
+    List temp = params;
+    while (fncParams != NULL) {
+        printList(car(fncParams));
+        printf(": ");
+        printList(eval(car(temp)));
+        printf("\n");
+        addToDefs(car(fncParams), eval(car(temp)));
+        temp = cdr(temp);
+        fncParams = cdr(fncParams);
+    }
+    return eval(evaluated);
+}
 
+// (define (member E L) (cond ((null? L) #f) ((equal? E (car L)) L) (else (member E (cdr L)))))
+// (member (quote b) (quote (a b c)))
 /***********************************************************************************
  Function: See header file for documentation.
  ***********************************************************************************/
@@ -427,8 +454,9 @@ List eval(List list) {
 			// look to see if in function environment
 			List found = assocString(data, fncenv);
             if (found->data == NULL) {
-                printf("found in the function environment\n");
-                
+                // printf("found in the function environment\n");
+                List params = eval(cdr(list));
+                return evalFunction(data, found, params);
             }
 			
 			if (cdr(list) != NULL && car(cdr(list)) != NULL) {
@@ -461,8 +489,6 @@ List eval(List list) {
 			            addToDefs(temp, definition);
 			            return glenv;
 		            } else {
-		                    // List params = cdr(car(cdr(list)));
-		                    // List execute = car(cdr(cdr(list)));
 		                // define a function
 		                List name = car(car(cdr(list)));
 			            addToFncs(name, list);
