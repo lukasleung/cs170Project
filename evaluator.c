@@ -308,7 +308,7 @@ List cond(List list) {
 void printEnvironment(int function) {
     if (function) {
         printf("Number elements in the function environment: %d\n", numFE);
-        if (numGE == 0) {
+        if (numFE == 0) {
             printList(fncenv);
         } else {
             int i = 1;
@@ -345,11 +345,11 @@ void printEnvironment(int function) {
 }
 
 /************************************************************************************
- Function: void addToEnvironment()
+ Function: void addToDefs()
  --------------------
- Private function that prints out the current global environement
+ Private function that adds a symbol definition to the current global environement
  ***********************************************************************************/
-void addToEnvironment(List term, List definition) {      
+void addToDefs(List term, List definition) {      
     // need to repackage the definition
     List temp = init(NULL);
     temp->first = definition;
@@ -362,12 +362,6 @@ void addToEnvironment(List term, List definition) {
     if (numGE == 0) {
         glenv->first = def;
     } else {
-        /*
-        List newDef = init(NULL);
-        newDef->first = def;
-        newDef->rest = glenv;
-        glenv = newDef;
-        /*/
         List head = glenv;
         List lastHead;
         while (head != NULL) {
@@ -379,9 +373,37 @@ void addToEnvironment(List term, List definition) {
         lastHead->rest = init(NULL);  
         lastHead->rest->first = def;
         
-    }  
-    
+    }     
     numGE++;
+}
+
+/************************************************************************************
+ Function: void addToFncs()
+ --------------------
+ Private function that adds a function to the current function environement
+ ***********************************************************************************/
+void addToFncs(List name, List function) {  
+    List temp = init(NULL);
+    temp->first = function;
+    List def = cons(name, temp);
+    
+    // tell if this is the first element in the function environment
+    if (numFE == 0) {
+        fncenv->first = def;
+    } else {
+        List head = fncenv;
+        List lastHead;
+        while (head != NULL) {
+            if (cdr(head) == NULL) {
+                lastHead = head;
+            }
+            head = cdr(head);
+        }
+        lastHead->rest = init(NULL);  
+        lastHead->rest->first = def;
+    }      
+    numFE++;
+    
 }
 
 
@@ -427,9 +449,19 @@ List eval(List list) {
 			        List pass = eval(cdr(list));
 			        return cond(pass);
 			    } else if (!strcmp(data,"define")) {
-			        List definition = eval(car(cdr(cdr(list))));
-			        addToEnvironment(temp, definition);
-			        return glenv;
+			        if (car(car(cdr(list))) == NULL) { 
+			            // define a symbol
+			            List definition = eval(car(cdr(cdr(list))));
+			            addToDefs(temp, definition);
+			            return glenv;
+		            } else {
+		                    // List params = cdr(car(cdr(list)));
+		                    // List execute = car(cdr(cdr(list)));
+		                // define a function
+		                List name = car(car(cdr(list)));
+			            addToFncs(name, list);
+			            return fncenv;
+		            }
 			    }
 			}
 		} else {
