@@ -1,5 +1,6 @@
 /****************************************************************
   File: evaluator.c
+  @author: Lukas Leung
  -------------
   This file implements the interface given in evaluator.h
 ****************************************************************/
@@ -410,7 +411,13 @@ void addToFncs(List name, List function) {
 
 
 
-
+/************************************************************************************
+ Function: List augmentedDefs(List term, List definition, List local, int numEl)
+ --------------------
+ Private function that adds a term and definition to a symbol environment and returns
+ an augmented one. local is the symbol environment and numEl is the number of current
+ symbols in it
+ ***********************************************************************************/
 List augmentedDefs(List term, List definition, List local, int numEl) {  
     /*
     printf("term: ");
@@ -430,7 +437,7 @@ List augmentedDefs(List term, List definition, List local, int numEl) {
     def->rest = temp;
     
     
-    // tell if this is the first element in the global environment
+    // tell if this is the first element in the local environment
     if (numEl == 0) {
         local = init(NULL);
         local->first = def;
@@ -453,8 +460,14 @@ List augmentedDefs(List term, List definition, List local, int numEl) {
 }
 
 
-List evalFunction(char* name, List function, List params, List localE) {
-    
+/************************************************************************************
+ Function: List evalFunction(char* name, List function, List params)
+ --------------------
+ Private function that will recursively eval a given function, updating any variables
+ using a local environment as suplement to the current global.
+ ***********************************************************************************/
+List evalFunction(char* name, List function, List params) {
+    // unpack the given Lists to useful Lists
     List fncParams = cdr(assocString(name, cdr(car(cdr(function)))));
     List evaluated = cdr(cdr(car(cdr(function))));
     List temp = params;
@@ -468,14 +481,14 @@ List evalFunction(char* name, List function, List params, List localE) {
     printf("\n");
     printf("\n%d < %d\n", numNAGE, numGE);
     */
-    int yolo;
+    int numDef;
     if (numNAGE < numGE) {
         localEnv = listCopy(nonAugGlenv);
-        yolo = numNAGE;
+        numDef = numNAGE;
     } else {
         localEnv = listCopy(glenv);
         numNAGE = 0;
-        yolo = numGE;
+        numDef = numGE;
     }
     /*
     printf("\n\nlocal environment: ");
@@ -497,20 +510,23 @@ List evalFunction(char* name, List function, List params, List localE) {
         printList(eval(car(temp)));
         printf("\n");
         */
-        localEnv = augmentedDefs(car(fncParams), eval(car(temp)), localEnv, (yolo+i));
+        localEnv = augmentedDefs(car(fncParams), eval(car(temp)), localEnv, (numDef+i));
         temp = cdr(temp);
         fncParams = cdr(fncParams);
         i++;
     }    
     // return evaluated;
+    /*
     printf("Augmented local environment: ");
     printList(localEnv);
     printf("\n");
     printf("\n%d < %d\n", numNAGE, numGE);
     printf("evalf(");
     printList(evaluated);
+    */
     if (numNAGE < numGE) {
         //          list, original, augmented, functions, Orig, augmented, f
+        /*
         printf(", ");
         printList(nonAugGlenv);
         printf(", ");
@@ -519,8 +535,10 @@ List evalFunction(char* name, List function, List params, List localE) {
         printList(fncenv);
         printf(", %d, %d, %d);\n", numNAGE, (numGE + numNAGE), numFE);
         printf("nested\n");
+        */
         return evalf(evaluated, nonAugGlenv, localEnv, fncenv, numNAGE, (numGE + numNAGE), numFE);
     } else {
+        /*
         printf(", ");
         printList(glenv);
         printf(", ");
@@ -529,6 +547,7 @@ List evalFunction(char* name, List function, List params, List localE) {
         printList(fncenv);
         printf(", %d, %d, %d);\n", numGE, numNAGE, numFE);
         printf("first\n");
+        */
         return evalf(evaluated, glenv, localEnv, fncenv, numGE, numNAGE, numFE);
     }
 }
@@ -555,12 +574,13 @@ List eval(List list) {
 			// look to see if in function environment
 			List found = assocString(data, fncenv);
             if (found->data == NULL) {
-                // printf("found in the function environment\n");
+                /*/ printf("found in the function environment\n");
                 printf("list: ");
                 printList(list);
                 printf("\n");
+                */
                 List params = eval(cdr(list));
-                return evalFunction(data, found, params, init(NULL));
+                return evalFunction(data, found, params);
             }
 			
 			if (cdr(list) != NULL && car(cdr(list)) != NULL) {
@@ -614,7 +634,9 @@ List eval(List list) {
 	return list;
 }
 
-
+/***********************************************************************************
+ Function: See header file for documentation.
+ ***********************************************************************************/
 List evalf(List list, List originalEnvironment, List augmentedEnvironment, List functionEnvironment, int numOl, int numAl, int numF) {
     nonAugGlenv = originalEnvironment;
     numNAGE = numOl;
@@ -625,6 +647,9 @@ List evalf(List list, List originalEnvironment, List augmentedEnvironment, List 
     return eval(list);
 }
 
+/***********************************************************************************
+ Function: See header file for documentation.
+ ***********************************************************************************/
 List evals(List list, List globalEnvironment, List functionEnvironment) {
     nonAugGlenv = NULL;
     glenv = globalEnvironment;
