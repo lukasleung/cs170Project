@@ -18,6 +18,16 @@
  */
 List eval(List list);
 
+/****************************************************************
+ Function: evals(List list)
+ --------------------
+ This function evaluates a given list as Scheme would have it
+    - list:  is the List to be evaluated (conscell structure)
+    - globalEnvironment: is the List structure to hold all of the
+                user defined definitions (can be pre-populated)
+    - functionEnvironment: is the List structure to hold all of the
+                user defined functions (can be pre-populated)
+ */
 List evals(List list, List globalEnvironment, List functionEnvironment);
 
 #endif
